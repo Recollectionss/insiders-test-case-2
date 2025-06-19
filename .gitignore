@@ -57,3 +57,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /docker-compose.dev.yml
 /src/shared/keys/private.pem
 /src/shared/keys/public.pem
+
+/prisma/src/config/prisma
