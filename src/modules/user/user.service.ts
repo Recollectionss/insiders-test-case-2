@@ -8,10 +8,14 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserJwtDataDto } from '../auth/dto/user-jwt-data.dto';
 import { UserDto } from './dto/user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { BookingsService } from '../bookings/bookings.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly bookingsService: BookingsService,
+  ) {}
 
   async create(data: CreateUserDto): Promise<string> {
     try {
@@ -47,6 +51,10 @@ export class UserService {
 
   async remove(userData: UserJwtDataDto): Promise<void> {
     await this.prismaService.users.delete({ where: { id: userData.sub } });
+  }
+
+  async getUserBookings(userData: UserJwtDataDto) {
+    return this.bookingsService.getUserBookings(userData);
   }
 
   private async validateByUsername(username: string): Promise<void> {

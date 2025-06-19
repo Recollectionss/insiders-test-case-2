@@ -30,8 +30,8 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Get()
-  findOne(@UserData() userData: UserJwtDataDto): Promise<UserDto> {
-    return this.userService.findById(userData);
+  async findOne(@UserData() userData: UserJwtDataDto): Promise<UserDto> {
+    return await this.userService.findById(userData);
   }
 
   @ApiOperation({ summary: 'Update current user data' })
@@ -40,11 +40,11 @@ export class UserController {
   @ApiResponse({ status: 500, description: 'Internal server error' })
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
-  update(
+  async update(
     @UserData() userData: UserJwtDataDto,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<void> {
-    return this.userService.update(userData, updateUserDto);
+    return await this.userService.update(userData, updateUserDto);
   }
 
   @ApiOperation({ summary: 'Delete current user account' })
@@ -53,7 +53,13 @@ export class UserController {
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Delete()
-  remove(@UserData() userData: UserJwtDataDto): Promise<void> {
-    return this.userService.remove(userData);
+  async remove(@UserData() userData: UserJwtDataDto): Promise<void> {
+    return await this.userService.remove(userData);
+  }
+
+  @UseGuards(JwtGuard)
+  @Get('bookings')
+  async getUserBookings(@UserData() userData: UserJwtDataDto) {
+    return this.userService.getUserBookings(userData);
   }
 }

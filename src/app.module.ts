@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import {AuthModule} from "./modules/auth/auth.module";
+import { AuthModule } from './modules/auth/auth.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { PrismaService } from './modules/prisma/prisma.service';
 import { PrismaModule } from './modules/prisma/prisma.module';
@@ -11,13 +11,13 @@ import appConfig from './config/app.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({load:[appConfig]}),
-      AuthModule,
-      RedisModule,
-      PrismaModule,
-      UserModule,
-      RoomModule,
-      BookingsModule
+    ConfigModule.forRoot({ load: [appConfig] }),
+    AuthModule,
+    RedisModule,
+    PrismaModule,
+    UserModule,
+    RoomModule,
+    BookingsModule,
   ],
   controllers: [],
   providers: [PrismaService],
