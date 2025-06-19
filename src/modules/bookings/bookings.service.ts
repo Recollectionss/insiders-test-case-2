@@ -46,19 +46,21 @@ export class BookingsService {
   async getAllBookings(
     pagination: PaginationRequestDto,
   ): Promise<GetAllBookingsDto> {
+    const page = pagination.page ?? 1;
+    const limit = pagination.limit ?? 10;
     const [data, total] = await this.prismaService.$transaction([
       this.prismaService.bookings.findMany({
-        skip: (pagination.page - 1) * pagination.limit,
-        take: pagination.limit,
+        skip: (page - 1) * limit,
+        take: limit,
         orderBy: { id: 'asc' },
       }),
       this.prismaService.bookings.count(),
     ]);
     return {
       rooms: data,
-      page: pagination.page,
-      limit: pagination.limit,
-      totalPages: Math.ceil(total / pagination.limit),
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     };
   }
 
