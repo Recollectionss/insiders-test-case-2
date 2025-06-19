@@ -13,8 +13,8 @@ export class RoomService {
   }
 
   async findAll(pagination: PaginationRequestDto): Promise<RoomsDto> {
-    const page = pagination.page ?? 1;
-    const limit = pagination.limit ?? 10;
+    const page = Number(pagination.page) ?? 1;
+    const limit = Number(pagination.limit) ?? 10;
     const [data, total] = await this.prismaService.$transaction([
       this.prismaService.rooms.findMany({
         skip: (page - 1) * limit,

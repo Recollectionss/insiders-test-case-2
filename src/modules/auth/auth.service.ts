@@ -33,7 +33,7 @@ export class AuthService {
     return;
   }
 
-  async signIn(data: SignInDto, res: Response): Promise<Response> {
+  async signIn(data: SignInDto, res: Response): Promise<void> {
     const dataValues = await this.userService.findByUsername(data.username);
     if (
       !(await this.hashingService.compareHash(
@@ -49,8 +49,8 @@ export class AuthService {
     });
     await this.saveTokensIntoRedis(tokens, dataValues);
     res = this.setTokenInCookie(res, tokens.refreshToken.token);
-    return res.status(HttpStatus.OK).json({
-      accessToken: tokens.accessToken,
+    res.status(HttpStatus.OK).json({
+      accessToken: tokens.accessToken.token,
     });
   }
 
@@ -91,7 +91,10 @@ export class AuthService {
     return req.cookies?.refreshToken;
   }
 
-  private async saveTokensIntoRedis(tokens: JwtTokensDto, user: UserDto) {
+  private async saveTokensIntoRedis(
+    tokens: JwtTokensDto,
+    user: UserDto,
+  ): Promise<void> {
     await this.redisService.setAccessToken(
       user.id,
       { token: tokens.accessToken.token },

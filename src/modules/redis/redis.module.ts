@@ -1,9 +1,9 @@
-import {Module} from '@nestjs/common';
-import {REDIS_CLIENT} from './redis.constants';
-import {createClient} from 'redis';
-import {ConfigModule, ConfigService, ConfigType} from '@nestjs/config';
-import {RedisService} from './redis.service';
-import redisConfig from "../../config/redis.config";
+import { Module } from '@nestjs/common';
+import { REDIS_CLIENT } from './redis.constants';
+import { createClient } from 'redis';
+import { ConfigModule, ConfigType } from '@nestjs/config';
+import { RedisService } from './redis.service';
+import redisConfig from '../../config/redis.config';
 
 @Module({
   providers: [
@@ -11,17 +11,17 @@ import redisConfig from "../../config/redis.config";
       provide: REDIS_CLIENT,
       useFactory: async (config: ConfigType<typeof redisConfig>) => {
         const url = config.url;
-        return await createClient({url})
-            .on('error', (err) => console.log('Redis Client Error', err))
-            .connect();
+        const client = createClient({ url });
+        client.on('error', (err) => console.error('Redis Client Error', err));
+        await client.connect();
+        return client;
       },
-      inject: [redisConfig.KEY]
+      inject: [redisConfig.KEY],
     },
     RedisService,
   ],
   exports: [RedisService],
   controllers: [],
-  imports: [ConfigModule.forRoot({load: [redisConfig]})],
-
+  imports: [ConfigModule.forRoot({ load: [redisConfig] })],
 })
 export class RedisModule {}

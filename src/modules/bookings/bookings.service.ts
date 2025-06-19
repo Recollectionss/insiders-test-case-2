@@ -25,6 +25,13 @@ export class BookingsService {
   ): Promise<BookingDto> {
     try {
       return await this.prismaService.$transaction(async (tx) => {
+        const roomExists = await tx.rooms.findUnique({
+          where: { id: data.room_id },
+        });
+
+        if (!roomExists) {
+          throw new NotFoundException('Room not found');
+        }
         const overlap = await tx.bookings.findFirst({
           where: {
             room_id: data.room_id,
@@ -61,8 +68,8 @@ export class BookingsService {
   async getAllBookings(
     pagination: PaginationRequestDto,
   ): Promise<GetAllBookingsDto> {
-    const page = pagination.page ?? 1;
-    const limit = pagination.limit ?? 10;
+    const page = Number(pagination.page) ?? 1;
+    const limit = Number(pagination.limit) ?? 10;
     const [data, total] = await this.prismaService.$transaction([
       this.prismaService.bookings.findMany({
         where: { is_deleted: false },

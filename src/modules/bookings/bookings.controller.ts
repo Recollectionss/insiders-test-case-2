@@ -27,9 +27,11 @@ import {
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
-  ApiOkResponse, ApiOperation,
+  ApiOkResponse,
+  ApiOperation,
   ApiParam,
-  ApiQuery, ApiResponse,
+  ApiQuery,
+  ApiResponse,
 } from '@nestjs/swagger';
 import { GetAllBookingsDto } from './dto/get-all-bookings.dto';
 import { RoomDto } from '../room/dto/room.dto';
@@ -73,9 +75,8 @@ export class BookingsController {
     type: [RoomDto],
   })
   @ApiBadRequestResponse({ description: 'Invalid date format' })
-  @ApiBody({ type: GetAvailableBookingDto })
   @Get('/rooms/available')
-  async getAvailableRooms(@Body() data: GetAvailableBookingDto) {
+  async getAvailableRooms(@Query() data: GetAvailableBookingDto) {
     return this.bookingsService.getAvailableRooms(data);
   }
 
