@@ -10,12 +10,18 @@ import { UserJwtDataDto } from '../auth/dto/user-jwt-data.dto';
 import { CreateBookingDto } from './dto/create-booking.dto';
 import { GetAvailableBookingDto } from './dto/get-available-booking.dto';
 import { PaginationRequestDto } from '../../shared/dto/pagination/pagination-request.dto';
+import { BookingDto } from './dto/booking.dto';
+import { GetAllBookingsDto } from './dto/get-all-bookings.dto';
+import { RoomDto } from '../room/dto/room.dto';
 
 @Injectable()
 export class BookingsService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createBooking(userData: UserJwtDataDto, data: CreateBookingDto) {
+  async createBooking(
+    userData: UserJwtDataDto,
+    data: CreateBookingDto,
+  ): Promise<BookingDto> {
     const overlap = await this.prismaService.bookings.findFirst({
       where: {
         room_id: data.room_id,
@@ -37,7 +43,9 @@ export class BookingsService {
     return this.prismaService.bookings.create({ data: newBooking });
   }
 
-  async getAllBookings(pagination: PaginationRequestDto) {
+  async getAllBookings(
+    pagination: PaginationRequestDto,
+  ): Promise<GetAllBookingsDto> {
     const [data, total] = await this.prismaService.$transaction([
       this.prismaService.bookings.findMany({
         skip: (pagination.page - 1) * pagination.limit,
@@ -54,7 +62,7 @@ export class BookingsService {
     };
   }
 
-  async getAvailableRooms(data: GetAvailableBookingDto) {
+  async getAvailableRooms(data: GetAvailableBookingDto): Promise<RoomDto[]> {
     if (isNaN(data.start.getTime()) || isNaN(data.end.getTime())) {
       throw new BadRequestException('Invalid date format');
     }
@@ -72,7 +80,7 @@ export class BookingsService {
     });
   }
 
-  async deleteOne(id: string, userData: UserJwtDataDto) {
+  async deleteOne(id: string, userData: UserJwtDataDto): Promise<void> {
     const data = await this.prismaService.bookings.findFirst({ where: { id } });
     if (!data) {
       throw new NotFoundException('Booking not found');
@@ -87,7 +95,7 @@ export class BookingsService {
     await this.prismaService.bookings.delete({ where: { id } });
   }
 
-  async getUserBookings(userData: UserJwtDataDto) {
+  async getUserBookings(userData: UserJwtDataDto): Promise<BookingDto[]> {
     return this.prismaService.bookings.findMany({
       where: { user_id: userData.sub },
     });

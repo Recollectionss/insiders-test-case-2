@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -27,9 +28,13 @@ export class UserService {
   }
 
   async findById(userData: UserJwtDataDto): Promise<UserDto> {
-    return this.prismaService.users.findFirst({
+    const data = this.prismaService.users.findFirst({
       where: { id: userData.sub },
     });
+    if (!data) {
+      throw new NotFoundException('User does not exist');
+    }
+    return data;
   }
 
   async findByUsername(username: string): Promise<UserDto> {
@@ -39,6 +44,7 @@ export class UserService {
   }
 
   async update(userData: UserJwtDataDto, data: UpdateUserDto): Promise<void> {
+    await this.validateByUsername(data.username);
     try {
       await this.prismaService.users.update({
         where: { id: userData.sub },

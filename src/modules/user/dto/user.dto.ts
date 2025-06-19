@@ -18,5 +18,8 @@ export class UserDto {
   })
   password?: string;
 
+  @ApiProperty({
+    example: 'false',
+  })
   admin: boolean;
 }

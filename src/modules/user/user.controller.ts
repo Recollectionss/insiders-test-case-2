@@ -49,7 +49,6 @@ export class UserController {
 
   @ApiOperation({ summary: 'Delete current user account' })
   @ApiResponse({ status: 200, description: 'User successfully deleted' })
-  @ApiResponse({ status: 404, description: 'User not found' })
   @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Delete()
@@ -57,6 +56,9 @@ export class UserController {
     return await this.userService.remove(userData);
   }
 
+  @ApiOperation({ summary: 'Get user future booking' })
+  @ApiResponse({ status: 200, description: 'User successfully deleted' })
+  @ApiBearerAuth()
   @UseGuards(JwtGuard)
   @Get('bookings')
   async getUserBookings(@UserData() userData: UserJwtDataDto) {
