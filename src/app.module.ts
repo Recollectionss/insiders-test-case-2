@@ -6,6 +6,7 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { UserModule } from './modules/user/user.module';
 import { ConfigModule } from '@nestjs/config';
 import { RoomModule } from './modules/room/room.module';
+import { BookingsModule } from './modules/bookings/bookings.module';
 import appConfig from './config/app.config';
 
 @Module({
@@ -15,7 +16,8 @@ import appConfig from './config/app.config';
       RedisModule,
       PrismaModule,
       UserModule,
-      RoomModule
+      RoomModule,
+      BookingsModule
   ],
   controllers: [],
   providers: [PrismaService],
