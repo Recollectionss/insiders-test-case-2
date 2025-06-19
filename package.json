@@ -18,14 +18,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "migration:generate": "sequelize migration:generate --name",
-    "migration:create": "sequelize migration:create --name",
-    "migration:up": "sequelize-cli db:migrate",
-    "migration:down": "sequelize-cli db:migrate:undo",
-    "migration:reset": "sequelize-cli db:migrate:undo:all",
-    "seed:create": "sequelize-cli seed:generate --name",
-    "seed:up": "npx sequelize-cli db:seed:all",
-    "seed:reset": "npx sequelize-cli db:seed:undo:all",
+    "migration:up": "prisma migrate deploy",
     "prisma:seed": "ts-node ./src/config/prisma.seed.ts"
   },
   "dependencies": {

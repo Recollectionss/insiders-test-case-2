@@ -11,7 +11,8 @@ services:
       - '${PORT}:${PORT}'
     depends_on:
       - postgres
-    command: sh -c "npm install  && npm run build && npm run migration:up&& npm run seed:up && npm run start:dev"
+      - redis
+    command: sh -c "npm install  && npm run build && npm run migration:up && npm run prisma:seed && npm run start:dev"
 
   postgres:
     container_name: insiders-postgres
@@ -19,10 +20,7 @@ services:
     env_file:
       - .env
     volumes:
-      - ./db/init:/docker-entrypoint-initdb.d/
       - ./db/data:/var/lib/postgresql/data
-    entrypoint: >
-      sh -c "chmod +x /docker-entrypoint-initdb.d/init-db.sh && exec docker-entrypoint.sh postgres"
     ports:
       - "5432:5432"
 
