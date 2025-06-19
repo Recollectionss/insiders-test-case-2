@@ -23,8 +23,11 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
-  ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse,
-  ApiOkResponse, ApiParam,
+  ApiForbiddenResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
   ApiQuery,
 } from '@nestjs/swagger';
 import { GetAllBookingsDto } from './dto/get-all-bookings.dto';

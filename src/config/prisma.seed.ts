@@ -10,6 +10,7 @@ async function main() {
     const hashedAdminPass = await bcrypt.hash('adminpassword', 10);
     const hashedUserPass = await bcrypt.hash('userpassword', 10);
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const admin = await prisma.users.create({
       data: {
         username: 'admin',
