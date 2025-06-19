@@ -13,6 +13,7 @@ import { PaginationRequestDto } from '../../shared/dto/pagination/pagination-req
 import { BookingDto } from './dto/booking.dto';
 import { GetAllBookingsDto } from './dto/get-all-bookings.dto';
 import { RoomDto } from '../room/dto/room.dto';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class BookingsService {
@@ -22,25 +23,39 @@ export class BookingsService {
     userData: UserJwtDataDto,
     data: CreateBookingDto,
   ): Promise<BookingDto> {
-    const overlap = await this.prismaService.bookings.findFirst({
-      where: {
-        room_id: data.room_id,
-        NOT: [
-          {
-            end_time: { lte: data.start_time },
+    try {
+      return await this.prismaService.$transaction(async (tx) => {
+        const overlap = await tx.bookings.findFirst({
+          where: {
+            room_id: data.room_id,
+            NOT: [
+              {
+                end_time: { lte: data.start_time },
+              },
+              {
+                start_time: { gte: data.end_time },
+              },
+            ],
           },
-          {
-            start_time: { gte: data.end_time },
-          },
-        ],
-      },
-    });
+        });
 
-    if (overlap) {
-      throw new ConflictException('This time slot is already booked.');
+        if (overlap) {
+          throw new ConflictException('This time slot is already booked.');
+        }
+        const newBooking = { ...data, user_id: userData.sub };
+        return tx.bookings.create({ data: newBooking });
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException(
+          'Someone have already booked this time slot.',
+        );
+      }
+      throw error;
     }
-    const newBooking = { ...data, user_id: userData.sub };
-    return this.prismaService.bookings.create({ data: newBooking });
   }
 
   async getAllBookings(
