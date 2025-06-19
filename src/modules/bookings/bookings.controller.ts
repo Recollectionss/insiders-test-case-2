@@ -3,7 +3,8 @@ import {
   Controller,
   Delete,
   Get,
-  Param, Patch,
+  Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -26,9 +27,9 @@ import {
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
-  ApiOkResponse,
+  ApiOkResponse, ApiOperation,
   ApiParam,
-  ApiQuery,
+  ApiQuery, ApiResponse,
 } from '@nestjs/swagger';
 import { GetAllBookingsDto } from './dto/get-all-bookings.dto';
 import { RoomDto } from '../room/dto/room.dto';
@@ -98,10 +99,30 @@ export class BookingsController {
     return this.bookingsService.deleteOne(id, userData);
   }
 
+  @ApiOperation({
+    summary: 'Restore a deleted booking',
+    description: `Restores a previously deleted booking by ID. Only the booking owner or an admin can perform this operation. 
+  Ensures the time slot is not already occupied by another booking.`,
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID of the booking to restore',
+    example: 'a4e8f774-bc7d-4aa2-baa5-89fe43c31dc1',
+  })
+  @ApiBearerAuth()
+  @ApiResponse({ status: 200, description: 'Booking successfully restored' })
+  @ApiResponse({
+    status: 403,
+    description: 'User is not authorized to restore this booking',
+  })
+  @ApiResponse({ status: 404, description: 'Booking not found' })
+  @ApiResponse({ status: 409, description: 'The time slot is already booked' })
   @UseGuards(JwtGuard)
   @Patch('/booking/:id')
   async restoreOne(
     @Param('id') id: string,
     @UserData() userData: UserJwtDataDto,
-  ) {}
+  ) {
+    return this.bookingsService.restoreOne(id, userData);
+  }
 }
