@@ -5,6 +5,7 @@ import { PrismaService } from './modules/prisma/prisma.service';
 import { PrismaModule } from './modules/prisma/prisma.module';
 import { UserModule } from './modules/user/user.module';
 import { ConfigModule } from '@nestjs/config';
+import { RoomModule } from './modules/room/room.module';
 import appConfig from './config/app.config';
 
 @Module({
@@ -13,7 +14,8 @@ import appConfig from './config/app.config';
       AuthModule,
       RedisModule,
       PrismaModule,
-      UserModule
+      UserModule,
+      RoomModule
   ],
   controllers: [],
   providers: [PrismaService],

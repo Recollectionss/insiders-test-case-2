@@ -17,4 +17,6 @@ export class UserDto {
     example: 'strongP@ssw0rd',
   })
   password?: string;
+
+  admin: boolean;
 }

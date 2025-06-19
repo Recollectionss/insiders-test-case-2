@@ -43,7 +43,10 @@ export class AuthService {
     ) {
       throw new BadRequestException('Invalid password');
     }
-    const tokens = this.authJwtService.generateTokens({ sub: dataValues.id });
+    const tokens = this.authJwtService.generateTokens({
+      sub: dataValues.id,
+      admin: dataValues.admin,
+    });
     await this.saveTokensIntoRedis(tokens, dataValues);
     res = this.setTokenInCookie(res, tokens.refreshToken.token);
     return res.status(HttpStatus.OK).json({
@@ -66,7 +69,10 @@ export class AuthService {
     const tokenData = await this.authJwtService.decode(refreshToken);
     console.log('refreshToken', refreshToken);
     await this.userService.findById(tokenData);
-    const tokens = this.authJwtService.generateTokens({ sub: tokenData.sub });
+    const tokens = this.authJwtService.generateTokens({
+      sub: tokenData.sub,
+      admin: tokenData.admin,
+    });
     res = this.setTokenInCookie(res, tokens.refreshToken.token);
     return res.status(HttpStatus.OK).json({ accessToken: tokens.accessToken });
   }
