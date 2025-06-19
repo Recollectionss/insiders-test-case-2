@@ -8,12 +8,17 @@ export class RedisService {
     @Inject(REDIS_CLIENT) private readonly redisClient: RedisClientType,
   ) {}
 
+  async setRefreshToken(key: string, value: object, ttlInSeconds?: number) {
+    key = `auth:refresh:${key}`;
+    await this.setJsonCache(key, value, ttlInSeconds);
+  }
+  async setAccessToken(key: string, value: object, ttlInSeconds?: number) {
+    key = `auth:refresh:${key}`;
+    await this.setJsonCache(key, value, ttlInSeconds);
+  }
+
   async setJsonCache(key: string, value: object, ttlInSeconds?: number) {
-    await this.redisClient.json.set(
-      key,
-      '$',
-      JSON.stringify(value),
-    );
+    await this.redisClient.json.set(key, '$', JSON.stringify(value));
     if (ttlInSeconds) {
       await this.redisClient.expire(key, ttlInSeconds);
     }

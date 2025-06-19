@@ -9,6 +9,8 @@ import { jwtModuleConfig } from './config/jwt.module.config';
 import { HashingService } from './hashing/hashing.service';
 import { BcryptService } from './hashing/bcrypt/bcrypt.service';
 import { JwtStrategy } from '../../shared/strategy/jwt.strategy';
+import { UserModule } from '../user/user.module';
+import { RedisModule } from '../redis/redis.module';
 
 @Module({
   controllers: [AuthController],
@@ -21,6 +23,8 @@ import { JwtStrategy } from '../../shared/strategy/jwt.strategy';
   imports: [
     ConfigModule.forRoot({ load: [jwtConfig] }),
     JwtModule.registerAsync(jwtModuleConfig),
+    UserModule,
+    RedisModule,
   ],
 })
 export class AuthModule {}

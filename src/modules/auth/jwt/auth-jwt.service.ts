@@ -29,10 +29,17 @@ export class AuthJwtService {
 
   generateTokens(payload: UserJwtDataDto): JwtTokensDto {
     return {
-      refreshToken: this.generateRefreshToken(payload),
-      accessToken: this.generateAccessToken(payload),
+      refreshToken: {
+        token: this.generateRefreshToken(payload),
+        ttl: this.jwtConf.refresh_ttl,
+      },
+      accessToken: {
+        token: this.generateAccessToken(payload),
+        ttl: this.jwtConf.access_ttl,
+      },
     };
   }
+
 
   async verify(token: string) {
     try {

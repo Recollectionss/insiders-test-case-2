@@ -11,6 +11,10 @@ import { AuthJwtService } from './jwt/auth-jwt.service';
 import { Request, Response } from 'express';
 import jwtConfig from '../../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
+import { UserService } from '../user/user.service';
+import { RedisService } from '../redis/redis.service';
+import { JwtTokensDto } from './dto/jwt-tokens.dto';
+import { UserDto } from '../user/dto/user.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,29 +23,32 @@ export class AuthService {
     private readonly authJwtService: AuthJwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConf: ConfigType<typeof jwtConfig>,
+    private readonly userService: UserService,
+    private readonly redisService: RedisService,
   ) {}
 
   async signUp(data: SignUpDto): Promise<void> {
     data.password = await this.hashingService.setHash(data.password);
+    await this.userService.create(data);
     return;
   }
 
-  // @ts-ignore
   async signIn(data: SignInDto, res: Response): Promise<Response> {
-    // const dataValues = await this.userService.findByEmail(data.email);
-    // if (
-    //   !(await this.hashingService.compareHash(
-    //     data.password,
-    //     dataValues.password,
-    //   ))
-    // ) {
-    //   throw new BadRequestException('Invalid password');
-    // }
-    // const tokens = this.authJwtService.generateTokens({ sub: dataValues.id });
-    // res = this.setTokenInCookie(res, tokens.refreshToken);
-    // return res.status(HttpStatus.OK).json({
-    //   accessToken: tokens.accessToken,
-    // });
+    const dataValues = await this.userService.findByUsername(data.username);
+    if (
+      !(await this.hashingService.compareHash(
+        data.password,
+        dataValues.password,
+      ))
+    ) {
+      throw new BadRequestException('Invalid password');
+    }
+    const tokens = this.authJwtService.generateTokens({ sub: dataValues.id });
+    await this.saveTokensIntoRedis(tokens, dataValues);
+    res = this.setTokenInCookie(res, tokens.refreshToken.token);
+    return res.status(HttpStatus.OK).json({
+      accessToken: tokens.accessToken,
+    });
   }
 
   async logout(req: Request, res: Response): Promise<Response> {
@@ -58,9 +65,9 @@ export class AuthService {
     console.log('refreshToken', refreshToken);
     const tokenData = await this.authJwtService.decode(refreshToken);
     console.log('refreshToken', refreshToken);
-    // await this.userService.findById(tokenData);
+    await this.userService.findById(tokenData);
     const tokens = this.authJwtService.generateTokens({ sub: tokenData.sub });
-    res = this.setTokenInCookie(res, tokens.refreshToken);
+    res = this.setTokenInCookie(res, tokens.refreshToken.token);
     return res.status(HttpStatus.OK).json({ accessToken: tokens.accessToken });
   }
 
@@ -75,5 +82,19 @@ export class AuthService {
 
   private async getTokenFromCookies(req: Request): Promise<string | undefined> {
     return req.cookies?.refreshToken;
+  }
+
+  private async saveTokensIntoRedis(tokens: JwtTokensDto, user: UserDto) {
+    await this.redisService.setAccessToken(
+      user.id,
+      { token: tokens.accessToken.token },
+      tokens.accessToken.ttl,
+    );
+
+    await this.redisService.setRefreshToken(
+      user.id,
+      { token: tokens.refreshToken.token },
+      tokens.refreshToken.ttl,
+    );
   }
 }
