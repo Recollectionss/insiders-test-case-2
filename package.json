@@ -25,7 +25,8 @@
     "migration:reset": "sequelize-cli db:migrate:undo:all",
     "seed:create": "sequelize-cli seed:generate --name",
     "seed:up": "npx sequelize-cli db:seed:all",
-    "seed:reset": "npx sequelize-cli db:seed:undo:all"
+    "seed:reset": "npx sequelize-cli db:seed:undo:all",
+    "prisma:seed": "ts-node ./src/config/prisma.seed.ts"
   },
   "dependencies": {
     "@nestjs-modules/ioredis": "^2.0.2",
@@ -59,6 +60,7 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "@types/bcrypt": "^5.0.2",
     "@types/cookie-parser": "^1.4.9",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
