@@ -3,7 +3,7 @@ import {
   Controller,
   Delete,
   Get,
-  Param,
+  Param, Patch,
   Post,
   Query,
   UseGuards,
@@ -97,4 +97,11 @@ export class BookingsController {
   ) {
     return this.bookingsService.deleteOne(id, userData);
   }
+
+  @UseGuards(JwtGuard)
+  @Patch('/booking/:id')
+  async restoreOne(
+    @Param('id') id: string,
+    @UserData() userData: UserJwtDataDto,
+  ) {}
 }

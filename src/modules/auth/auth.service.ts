@@ -60,14 +60,15 @@ export class AuthService {
     if (typeof refreshToken === 'undefined') {
       return res.status(HttpStatus.OK).json({});
     }
+    const tokenData = await this.authJwtService.decode(refreshToken);
+    await this.redisService.deleteRefreshToken(tokenData.sub);
+    await this.redisService.deleteAccessToken(tokenData.sub);
     res.clearCookie('refreshToken');
     return res.status(HttpStatus.OK).json({});
   }
 
   async refresh(refreshToken: string, res: Response): Promise<Response> {
-    console.log('refreshToken', refreshToken);
     const tokenData = await this.authJwtService.decode(refreshToken);
-    console.log('refreshToken', refreshToken);
     await this.userService.findById(tokenData);
     const tokens = this.authJwtService.generateTokens({
       sub: tokenData.sub,

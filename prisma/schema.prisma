@@ -38,7 +38,10 @@ model Bookings {
   end_time   DateTime
   user_id    String   @db.Uuid
   room_id    String   @db.Uuid
+  is_deleted Boolean  @default(false)
 
   user       Users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
   room       Rooms    @relation(fields: [room_id], references: [id], onDelete: Cascade)
+
+  @@index([is_deleted])
 }

@@ -28,6 +28,14 @@ export class RedisService {
     return await this.redisClient.json.get(key);
   }
 
+  async deleteRefreshToken(key: string) {
+    key = `auth:refresh:${key}`;
+    return this.deleteJsonCache(key);
+  }
+  async deleteAccessToken(key: string) {
+    key = `auth:refresh:${key}`;
+    return this.deleteJsonCache(key);
+  }
   async deleteJsonCache(key: string) {
     return await this.redisClient.json.del(key);
   }

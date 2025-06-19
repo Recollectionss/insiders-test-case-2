@@ -94,7 +94,43 @@ export class BookingsService {
       );
     }
 
-    await this.prismaService.bookings.delete({ where: { id } });
+    await this.prismaService.bookings.update({
+      where: { id },
+      data: { is_deleted: new Date() },
+    });
+  }
+
+  async restoreOne(id: string, userData: UserJwtDataDto): Promise<void> {
+    const data = await this.prismaService.bookings.findFirst({ where: { id } });
+    if (!data) {
+      throw new NotFoundException('Booking not found');
+    }
+
+    if (data.user_id !== userData.sub && !userData.admin) {
+      throw new ForbiddenException(
+        'You are not allowed to delete this booking',
+      );
+    }
+
+    const overlapping = await this.prismaService.bookings.findFirst({
+      where: {
+        room_id: data.room_id,
+        deleted_at: false,
+        NOT: [
+          { end_time: { lte: data.start_time } },
+          { start_time: { gte: data.end_time } },
+        ],
+      },
+    });
+
+    if (overlapping) {
+      throw new ConflictException('The time slot is already booked');
+    }
+
+    await this.prismaService.bookings.update({
+      where: { id },
+      data: { deleted_at: false },
+    });
   }
 
   async getUserBookings(userData: UserJwtDataDto): Promise<BookingDto[]> {
