@@ -50,6 +50,7 @@ export class BookingsService {
     const limit = pagination.limit ?? 10;
     const [data, total] = await this.prismaService.$transaction([
       this.prismaService.bookings.findMany({
+        where: { is_deleted: false },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: { id: 'asc' },
@@ -96,7 +97,7 @@ export class BookingsService {
 
     await this.prismaService.bookings.update({
       where: { id },
-      data: { is_deleted: new Date() },
+      data: { is_deleted: true },
     });
   }
 
@@ -115,7 +116,7 @@ export class BookingsService {
     const overlapping = await this.prismaService.bookings.findFirst({
       where: {
         room_id: data.room_id,
-        deleted_at: false,
+        is_deleted: false,
         NOT: [
           { end_time: { lte: data.start_time } },
           { start_time: { gte: data.end_time } },
@@ -129,7 +130,7 @@ export class BookingsService {
 
     await this.prismaService.bookings.update({
       where: { id },
-      data: { deleted_at: false },
+      data: { is_deleted: false },
     });
   }
 
