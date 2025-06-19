@@ -23,24 +23,15 @@ export class UserService {
   }
 
   async findById(userData: UserJwtDataDto): Promise<UserDto> {
-    const dataValues = await this.prismaService.users.findFirst({
+    return this.prismaService.users.findFirst({
       where: { id: userData.sub },
     });
-    return {
-      id: dataValues.id,
-      username: dataValues.username,
-    };
   }
 
   async findByUsername(username: string): Promise<UserDto> {
-    const dataValues = await this.prismaService.users.findFirst({
+    return this.prismaService.users.findFirst({
       where: { username },
     });
-    return {
-      id: dataValues.id,
-      username: dataValues.username,
-      password: dataValues.password,
-    };
   }
 
   async update(userData: UserJwtDataDto, data: UpdateUserDto): Promise<void> {

@@ -1,26 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { CreateRoomDto } from './dto/create-room.dto';
-import { UpdateRoomDto } from './dto/update-room.dto';
+import { PrismaService } from '../prisma/prisma.service';
+import { PaginationRequestDto } from '../../shared/dto/pagination/pagination-request.dto';
+import { RoomDto } from './dto/room.dto';
+import { RoomsDto } from './dto/rooms.dto';
 
 @Injectable()
 export class RoomService {
-  create(createRoomDto: CreateRoomDto) {
-    return 'This action adds a new room';
+  constructor(private readonly prismaService: PrismaService) {}
+  async create(data: CreateRoomDto) {
+    return this.prismaService.rooms.create({ data });
   }
 
-  findAll() {
-    return `This action returns all room`;
+  async findAll(pagination: PaginationRequestDto): Promise<RoomsDto> {
+    const [data, total] = await this.prismaService.$transaction([
+      this.prismaService.rooms.findMany({
+        skip: (pagination.page - 1) * pagination.limit,
+        take: pagination.limit,
+        orderBy: { name: 'asc' },
+      }),
+      this.prismaService.rooms.count(),
+    ]);
+    return {
+      rooms: data,
+      page: pagination.page,
+      limit: pagination.limit,
+      totalPages: Math.ceil(total / pagination.limit),
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} room`;
+  async findOne(id: string): Promise<RoomDto> {
+    return this.prismaService.rooms.findFirst({ where: { id } });
   }
 
-  update(id: number, updateRoomDto: UpdateRoomDto) {
-    return `This action updates a #${id} room`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} room`;
+  async remove(id: string): Promise<void> {
+    await this.prismaService.users.delete({ where: { id } });
   }
 }
