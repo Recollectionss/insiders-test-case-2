@@ -1,6 +1,6 @@
 import {
   Body,
-  Controller,
+  Controller, Get,
   HttpCode,
   HttpStatus,
   Patch,
